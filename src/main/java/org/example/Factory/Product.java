@@ -1,4 +1,4 @@
-package org.example;
+package org.example.Factory;
 
 public class Product {
     private static int id_generator;

@@ -4,7 +4,9 @@ package org.example;
 import org.example.Adapter.EmailService;
 import org.example.Adapter.EmailServiceImpl;
 import org.example.Adapter.RegistrationNotificationEmailAdapter;
+import org.example.Factory.Product;
 import org.example.Observer.ProcessNotification;
+import org.example.Singleton.GymMembershipStore;
 import org.example.Strategy.ShoppingCart;
 
 import java.util.Scanner;
@@ -15,7 +17,7 @@ public class Main {
         ShoppingCart shoppingCart = new ShoppingCart();
 
 
-        Store store = Store.getInstance();
+        GymMembershipStore store = GymMembershipStore.getInstance();
         User currentUser = null;
         Scanner scanner = new Scanner(System.in);
 

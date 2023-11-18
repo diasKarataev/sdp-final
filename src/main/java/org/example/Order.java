@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.Factory.Product;
+
 public class Order {
     private static int id_generator = 0;
     private int id;

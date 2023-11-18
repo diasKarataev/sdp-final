@@ -1,11 +1,16 @@
-package org.example;
+package org.example.Singleton;
+
+import org.example.ERole;
+import org.example.Order;
+import org.example.Factory.Product;
+import org.example.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public
-class Store {
-    private static Store instance;
+class GymMembershipStore {
+    private static GymMembershipStore instance;
     private List<Product> products;
     private List<Order> orders;
 
@@ -33,15 +38,15 @@ class Store {
 
     private List<User> users;
 
-    private Store() {
+    private GymMembershipStore() {
         products = new ArrayList<>();
         orders = new ArrayList<>();
         users = new ArrayList<>();
     }
 
-    public static Store getInstance() {
+    public static GymMembershipStore getInstance() {
         if (instance == null) {
-            instance = new Store();
+            instance = new GymMembershipStore();
         }
         return instance;
     }

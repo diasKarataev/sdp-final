@@ -1,6 +1,6 @@
 package org.example.Strategy;
 
-import org.example.Product;
+import org.example.Factory.Product;
 
 import java.util.ArrayList;
 import java.util.List;

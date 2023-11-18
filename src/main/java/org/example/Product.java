@@ -1,4 +1,4 @@
-package org.example.FinalProject;
+package org.example;
 
 public class Product {
     private static int id_generator;

@@ -1,4 +1,4 @@
-package org.example.FinalProject;
+package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,6 @@ class Store {
         products = new ArrayList<>();
         orders = new ArrayList<>();
         users = new ArrayList<>();
-        // Здесь вы можете инициализировать продукты, заказы и пользователей по умолчанию.
     }
 
     public static Store getInstance() {
@@ -107,5 +106,3 @@ class Store {
             return null;
         }
     }
-
-    // Другие методы для получения и управления данными о продуктах, заказах и пользователях

@@ -1,4 +1,4 @@
-package org.example.FinalProject;
+package org.example;
 
 public class Order {
     private static int id_generator = 0;

@@ -1,4 +1,4 @@
-package org.example.FinalProject;
+package org.example;
 
 public enum ERole {
     USER, ADMIN

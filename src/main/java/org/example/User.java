@@ -1,6 +1,7 @@
-package org.example.FinalProject;
+package org.example;
 
-import org.example.FinalProject.Observer.Observer;
+
+import org.example.Observer.Observer;
 
 public
 class User implements Observer {

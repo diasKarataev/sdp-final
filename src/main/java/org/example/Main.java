@@ -1,12 +1,16 @@
 package org.example;
 
 
+import org.example.Adapter.EmailService;
+import org.example.Adapter.EmailServiceImpl;
+import org.example.Adapter.RegistrationNotificationEmailAdapter;
 import org.example.Observer.ProcessNotification;
 
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        EmailServiceImpl basicEmailService = new EmailServiceImpl();
         Store store = Store.getInstance();
         User currentUser = null;
         Scanner scanner = new Scanner(System.in);
@@ -36,6 +40,10 @@ public class Main {
                 User registeredUser = new User(name,email, password);
                 registeredUser.setRole(ERole.USER);
                 store.addUser(registeredUser);
+
+                // Отправить сообщение об успешной регистрации пользователю
+                EmailService emailService = new RegistrationNotificationEmailAdapter(basicEmailService);
+                emailService.sendEmail(email);
             }
             if ("/login".equalsIgnoreCase(command)) {
                 System.out.println("Введите почту:");

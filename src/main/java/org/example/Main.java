@@ -5,12 +5,16 @@ import org.example.Adapter.EmailService;
 import org.example.Adapter.EmailServiceImpl;
 import org.example.Adapter.RegistrationNotificationEmailAdapter;
 import org.example.Observer.ProcessNotification;
+import org.example.Strategy.ShoppingCart;
 
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         EmailServiceImpl basicEmailService = new EmailServiceImpl();
+        ShoppingCart shoppingCart = new ShoppingCart();
+
+
         Store store = Store.getInstance();
         User currentUser = null;
         Scanner scanner = new Scanner(System.in);

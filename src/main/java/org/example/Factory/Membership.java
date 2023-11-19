@@ -1,5 +1,6 @@
 package org.example.Factory;
 
 public interface Membership {
-    void useMembership();
+    public String getDescription();
+    public int getPrice();
 }

@@ -1,22 +1,22 @@
-package org.example;
+package org.example.Singleton;
 
 
 import org.example.Observer.Observer;
 
 public
 class User implements Observer {
+    private int id;
     private String name;
     private String email;
+    private String password;
     private ERole role;
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                ", password='" + password + '\'' +
-                '}';
+    public User() {
     }
 
     public ERole getRole() {
@@ -35,17 +35,6 @@ class User implements Observer {
         this.password = password;
     }
 
-    private String password;
-
-    public User(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
-
-    public User() {
-    }
-
     public String getName() {
         return name;
     }
@@ -60,6 +49,17 @@ class User implements Observer {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", role=" + role +
+                '}';
     }
 }
 

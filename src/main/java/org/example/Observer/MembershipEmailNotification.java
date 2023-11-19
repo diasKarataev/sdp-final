@@ -4,31 +4,30 @@ package org.example.Observer;
 
 import org.example.Adapter.EmailService;
 import org.example.Adapter.EmailServiceImpl;
-import org.example.Adapter.ProcessNotificationEmailAdapter;
-import org.example.User;
+import org.example.Adapter.JoinMembershipNotificationEmailAdapter;
+import org.example.Singleton.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProcessNotification implements Observable{
-    private EmailServiceImpl emailService;
+public class MembershipEmailNotification implements Observable{
+    private EmailServiceImpl emailService = new EmailServiceImpl();
     List<User> observers = new ArrayList<>();
 
     @Override
-    public void addObserver(User user) {
+    public void addMailingSubscriber(User user) {
         observers.add(user);
     }
 
     @Override
-    public void removeObserver(User user) {
+    public void removeMailingSubscriber(User user) {
         observers.remove(user);
     }
 
     @Override
-    public void notifyMembers() {
+    public void notifyMembers(String topic, String message) {
         for(User observer : observers){
-            EmailService mailing = new ProcessNotificationEmailAdapter(emailService);
-            mailing.sendEmail(observer.getEmail());
+            emailService.send(observer.getEmail(), topic,message);
             System.out.println("Send email to " + observer.getEmail());
         }
     }

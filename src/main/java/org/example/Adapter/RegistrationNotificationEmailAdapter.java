@@ -9,7 +9,7 @@ public class RegistrationNotificationEmailAdapter implements EmailService{
 
     @Override
     public void sendEmail(String to) {
-        String message = to + " sent registration mail";
-        legacyEmailService.send(to, message);
+        String message = "Вы успешно зарегистрировались в нашей платформе";
+        legacyEmailService.send(to, "Регистрация", message);
     }
 }

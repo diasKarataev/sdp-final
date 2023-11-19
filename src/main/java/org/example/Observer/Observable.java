@@ -1,10 +1,10 @@
 package org.example.Observer;
 
 
-import org.example.User;
+import org.example.Singleton.User;
 
 public interface Observable {
-    void addObserver(User user);
-    void removeObserver(User user);
-    void notifyMembers();
+    void addMailingSubscriber(User user);
+    void removeMailingSubscriber(User user);
+    void notifyMembers(String topic, String message);
 }

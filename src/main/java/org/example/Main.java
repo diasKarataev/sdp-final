@@ -3,10 +3,15 @@ package org.example;
 
 import org.example.Adapter.EmailService;
 import org.example.Adapter.EmailServiceImpl;
+import org.example.Adapter.JoinMembershipNotificationEmailAdapter;
 import org.example.Adapter.RegistrationNotificationEmailAdapter;
-import org.example.Factory.Product;
-import org.example.Observer.ProcessNotification;
-import org.example.Singleton.GymMembershipStore;
+import org.example.Decorator.PersonalMembership;
+import org.example.Decorator.PoolMembership;
+import org.example.Factory.*;
+import org.example.Observer.MembershipEmailNotification;
+import org.example.Singleton.*;
+import org.example.Strategy.CreditCardPaymentStrategy;
+import org.example.Strategy.CashPaymentStrategy;
 import org.example.Strategy.ShoppingCart;
 
 import java.util.Scanner;
@@ -14,130 +19,171 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         EmailServiceImpl basicEmailService = new EmailServiceImpl();
+
+        MembershipEmailNotification emailNotification = new MembershipEmailNotification();
+
         ShoppingCart shoppingCart = new ShoppingCart();
 
+        UserManagement userManagement = UserManagement.getInstance();
+        MembershipManagement membershipManagement = MembershipManagement.getInstance();
 
-        GymMembershipStore store = GymMembershipStore.getInstance();
+
+
         User currentUser = null;
         Scanner scanner = new Scanner(System.in);
 
-        User admin = new User("admin", "admin", "admin");
+        User admin = new User("admin", "admin@admin.admin", "admin");
         admin.setRole(ERole.ADMIN);
-        store.addUser(admin);
+        userManagement.addUser(admin);
 
         while (true) {
             System.out.print("Введите команду (или 'exit' для выхода): ");
             String command = scanner.nextLine();
 
-            if ("!".equalsIgnoreCase(command)) {
-                System.out.println("! - help");
-                System.out.println("/reg - for sign up");
-                System.out.println("/login - for sign in");
-            }
-
-            if ("/reg".equalsIgnoreCase(command)) {
-                System.out.println("Register");
-                System.out.println("Введите имя:");
-                String name = scanner.next();
-                System.out.println("Введите почту:");
-                String email = scanner.next();
-                System.out.println("Введите пароль:");
-                String password = scanner.next();
-                User registeredUser = new User(name,email, password);
-                registeredUser.setRole(ERole.USER);
-                store.addUser(registeredUser);
-
-                // Отправить сообщение об успешной регистрации пользователю
-                EmailService emailService = new RegistrationNotificationEmailAdapter(basicEmailService);
-                emailService.sendEmail(email);
-            }
-            if ("/login".equalsIgnoreCase(command)) {
-                System.out.println("Введите почту:");
-                String email = scanner.next();
-                System.out.println("Введите пароль:");
-                String password = scanner.next();
-                if(store.getUserPasswordByEmail(email).equals(password)){
-                    User loginUser = new User(store.getUserNameByEmail(email), email, password);
-                    loginUser.setRole(store.getRolePasswordByEmail(email));
-                    currentUser = loginUser;
-                    System.out.println("Здравствуйте " + currentUser.getName());
-                } else {
-                    System.out.println("Неправильный пароль, повторите попытку");
+            switch (command) {
+                case "!" -> {
+                    System.out.println("! - help");
+                    System.out.println("/reg - регистрация");
+                    System.out.println("/login - вход");
+                    System.out.println("/buy-membership - покупка абонемента");
+                    System.out.println("/upgrade-membership - добавить опций в абонемент");
+                    System.out.println("/cart - корзина");
+                    System.out.println("/checkout - оплата");
+                    System.out.println("/admin/users - показать пользователей");
+                    System.out.println("/admin/members - показать членов клуба");
+                    System.out.println("/admin/notify - отправить рассылку членам клуба");
                 }
-            }
-
-            if ("/addproduct".equalsIgnoreCase(command)) {
-                assert currentUser != null;
-                if(currentUser.getRole() == ERole.ADMIN){
-                    System.out.println("Введите название товара:");
-                    String title = scanner.next();
-                    System.out.println("Введите описание товара:");
-                    String description = scanner.next();
-                    System.out.println("Введите цену товара в тенге:");
-                    int price = scanner.nextInt();
-                    Product product = new Product(title,description,price);
-                    store.addProduct(product);
-                } else {
-                    System.out.println("У вас нет прав");
-                }
-            }
-            if("/products".equalsIgnoreCase(command)){
-                for(Product product : store.getProducts()){
-                    System.out.println(product.toString());
-                }
-            }
-
-            if("/addorder".equalsIgnoreCase(command)){
-                assert currentUser != null;
-                System.out.println("Введите id товара");
-                int id = scanner.nextInt();
-                System.out.println("Введите адрес");
-                String address = scanner.next();
-                Order order = new Order(currentUser, store.getProductById(id),address);
-                store.addOrder(order);
-            }
-
-            if("/orders".equalsIgnoreCase(command)) {
-                assert currentUser != null;
-                if (currentUser.getRole() == ERole.ADMIN) {
-                    for (Order order : store.getOrders()) {
-                        System.out.println(order.getOrderedProduct().toString());
-                        System.out.println(order.getOrderedUser().toString());
-                        System.out.println(order.getAddress());
+                case "/reg" -> {
+                    System.out.println("** Регистрация **\n");
+                    System.out.println("Введите имя:");
+                    String regName = scanner.next();
+                    System.out.println("Введите почту:");
+                    String regEmail = scanner.next();
+                    if (regEmail.contains("@") && userManagement.getUserNameByEmail(regEmail) == null) {
+                        System.out.println("Введите пароль:");
+                        String regPassword = scanner.next();
+                        User registeredUser = new User(regName, regEmail, regPassword);
+                        registeredUser.setRole(ERole.USER);
+                        userManagement.addUser(registeredUser);
+                        // Отправить сообщение об успешной регистрации пользователю
+                        EmailService emailService = new RegistrationNotificationEmailAdapter(basicEmailService);
+                        emailService.sendEmail(regEmail);
+                    } else {
+                        System.out.println("Введите другую почту");
                     }
                 }
-            }
+                case "/login" -> {
+                    System.out.println("Введите почту:");
+                    String loginEmail = scanner.next();
+                    System.out.println("Введите пароль:");
+                    String loginPassword = scanner.next();
+                    if (userManagement.getUserPasswordByEmail(loginEmail).equals(loginPassword)) {
+                        User loginUser = new User(userManagement.getUserNameByEmail(loginEmail), loginEmail, loginPassword);
+                        loginUser.setRole(userManagement.getRolePasswordByEmail(loginEmail));
+                        currentUser = loginUser;
+                        System.out.println("Здравствуйте " + currentUser.getName());
+                    } else {
+                        System.out.println("Пользователь не найде/неправильный пароль, повторите попытку");
+                    }
+                }
+                case "/buy-membership" -> {
+                    assert currentUser != null;
+                    System.out.println("Выберите абонемент:" +
+                            "\n 1. Стандартный абонемент - 20000" +
+                            "\n 2. Абонемент с бассейном - 30000" +
+                            "\n 3. Абонемент с персональным тренером - 60000"
+                    );
+                    Membership membership = null;
+                    int chooseMembership = scanner.nextInt();
+                    switch (chooseMembership) {
+                        case 1 -> {
+                            membership = new DefaultMembershipFactory().createMembership(shoppingCart);
+                        }
+                        case 2 -> {
+                            membership = new PoolMembershipFactory().createMembership(shoppingCart);
+                        }
+                        case 3 -> {
+                            membership = new PersonalMembershipFactory().createMembership(shoppingCart);
+                        }
+                        default -> {
 
-            if("/processorder".equalsIgnoreCase(command)) {
-                assert currentUser != null;
-                if (currentUser.getRole().equals(ERole.ADMIN)) {
-                    ProcessNotification notification = new ProcessNotification();
-                   while (true){
-                       System.out.println("Введите id заказа либо введите команду /send");
-                       String id = scanner.next();
-                       if(id.equalsIgnoreCase("/send")){
-                           notification.notifyMembers();
-                           break;
-                       }
-                       // TODO добавить проверку на совпадение int
-                       else {
-                        notification.addObserver(store.getOrderById(Integer.parseInt(id)).getOrderedUser());
-                       }
-                   }
+                        }
+                    }
+                    shoppingCart.addToCart(membership);
+                }
+                case "/upgrade-membership" -> {
+                    assert currentUser != null;
+                    Membership currentMembership = shoppingCart.getProductList().get(0);
+                    System.out.println("Улучшение абонемента:" +
+                            "\n 1. Добавить пропуск в бассейн - 10000" +
+                            "\n 2. Добавить персонального треннера 40000 тг"
+                    );
+                    int c = scanner.nextInt();
+                    switch (c) {
+                        case 1 -> currentMembership = new PoolMembership(currentMembership);
+                        case 2 -> currentMembership = new PersonalMembership(currentMembership);
+                    }
+                    shoppingCart.updateProduct(currentMembership);
+                }
+                case "/cart" -> {
+                    assert currentUser != null;
+                    for (Membership m : shoppingCart.getProductList()) {
+                        System.out.println(m.getDescription());
+                    }
+                    System.out.println("\nСтоимость:" + shoppingCart.getAmount());
+                    System.out.println("/checkout для оплаты");
+                }
+                case "/checkout" -> {
+                    assert currentUser != null;
+                    System.out.println("Выберите способ оплаты \n 1. Кредитная карта \n 2. Наличные");
+                    int choose = scanner.nextInt();
+                    switch (choose) {
+                        case 1 -> shoppingCart.setPaymentStrategy(new CreditCardPaymentStrategy());
+                        case 2 -> shoppingCart.setPaymentStrategy(new CashPaymentStrategy());
+                        default -> System.out.println("Неверная команда");
+                    }
+                    shoppingCart.checkout(shoppingCart.getAmount());
+                    GymMember newMember = new GymMember();
+                    newMember.setMembership(shoppingCart.getProductList().get(0));
+                    newMember.setUser(currentUser);
+                    membershipManagement.addMember(newMember);
+                    emailNotification.addMailingSubscriber(currentUser);
+
+                    // Отправка сообщения об успешной оплате
+                    EmailService service = new JoinMembershipNotificationEmailAdapter(basicEmailService);
+                    service.sendEmail(currentUser.getEmail());
+                }
+                case "/admin" -> {
+                    assert currentUser != null;
+                    assert currentUser.getRole().equals(ERole.ADMIN);
+                    String cp = scanner.next();
+                    switch (cp) {
+                        case "/members" -> {
+                            for (GymMember member : membershipManagement.getMembers()) {
+                                System.out.println(member.getUser().toString());
+                            }
+                        }
+                        case "/notify" -> {
+                            System.out.println("Введите тему рассылки");
+                            String topic = scanner.next();
+                            System.out.println("Введите сообщение");
+                            String message = scanner.next();
+                            emailNotification.notifyMembers(topic, message);
+                        }
+                        case "/users" -> {
+                            for (User user : userManagement.getUsers()) {
+                                System.out.println(user.toString());
+                            }
+                        }
+                        default -> {
+                        }
+                    }
+                }
+                case "/exit" -> {
+                    System.out.println("Выход из программы.");
+                    scanner.close();
                 }
             }
-
-            if("/myorders".equalsIgnoreCase(command)) {
-                System.out.println(store.getOrdersByUser(currentUser).toString());
-            }
-
-            if ("/exit".equalsIgnoreCase(command)) {
-                assert currentUser != null;
-                System.out.println(currentUser.getEmail());
-                System.out.println("Выход из программы.");
-                break;
-            }
         }
-        scanner.close();
     }
 }
